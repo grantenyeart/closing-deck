@@ -82,6 +82,24 @@
   .ph b{display:block;color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:7px;}
   .ph span{color:var(--muted);font-size:14px;}
 
+  .shot{display:block;width:100%;margin-top:20px;border-radius:13px;border:1px solid var(--border2);}
+  .tel{display:inline-flex;align-items:center;gap:11px;margin-top:18px;background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border2);border-radius:14px;padding:16px 22px;text-decoration:none;color:inherit;}
+  .tel:hover{border-color:#fff;}
+  .tel .tl{font-size:10.5px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:var(--muted2);}
+  .tel .tn{font-family:'Playfair Display',serif;font-size:clamp(26px,3.6vw,38px);font-weight:900;line-height:1.1;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:15px;margin-top:24px;}
+  .proof{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border2);border-radius:15px;padding:21px 22px;}
+  .proof .pc{font-size:11px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2);}
+  .proof .pb{font-family:'Playfair Display',serif;font-size:clamp(32px,4.6vw,46px);font-weight:900;line-height:1;margin:10px 0 3px;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .proof .pl{color:#cbd5e1;font-size:14.5px;font-weight:700;}
+  .proof ul{list-style:none;margin-top:13px;}
+  .proof li{font-size:14px;color:var(--muted);padding:4px 0 4px 18px;position:relative;}
+  .proof li:before{content:"\2022";position:absolute;left:0;color:#fff;}
+  .ask{margin-top:24px;background:rgba(203,213,225,.07);border:1px solid rgba(203,213,225,.22);border-radius:13px;padding:17px 20px;}
+  .ask p{color:#fff;font-size:clamp(17px,2.4vw,22px);font-weight:700;font-style:italic;}
   .cta{display:inline-flex;align-items:center;gap:9px;margin-top:20px;background:var(--grad);color:#0f172a;
     font-weight:800;font-size:15px;border:0;border-radius:999px;padding:13px 24px;text-decoration:none;cursor:pointer;}
   .cta:hover{filter:brightness(1.08);}
@@ -241,22 +259,48 @@
       <div class="card"><h3>What we need from you</h3><p>A verified business profile, insurance, and a phone that gets answered fast. Speed to lead decides your placement.</p></div>
       <div class="card"><h3>The catch</h3><p>It only works where your market is not already saturated. We check that before the call. If your area is crowded, Pay Per Click is the better route.</p></div>
     </div>
-    <div class="ph"><b>Add: Local Services results</b><span>A screenshot or the headline numbers from a live Local Services account. Leads per month, cost per lead, and the client name you are happy to show.</span></div>
+    <h3 style="font-size:19px;font-weight:800;margin-top:28px;">Thirty days on one live account</h3>
+    <div class="stats">
+      <div class="stat"><b>215</b><span>Leads in thirty days</span></div>
+      <div class="stat"><b>147</b><span>Of those came in as phone calls</span></div>
+      <div class="stat"><b>95.8%</b><span>Of the time shown at the top</span></div>
+      <div class="stat"><b>7,729</b><span>Times your profile was served</span></div>
+    </div>
+    <img class="shot" src="proof-local-services.png" alt="Local Services monthly report showing 215 leads" />
+    <p class="src">A real client's monthly report. 147 calls and 68 messages, straight to their phone.</p>
   </section>
 
   <!-- 8 PAY PER CLICK -->
   <section class="slide" id="s-ppc">
     <div class="kicker">Lead generation</div>
     <h2>Pay Per Click</h2>
-    <p class="lead">We build you a landing page carrying your pricing and your work, then run Google search ads into it. People see what it costs, see the job quality, and book straight into your calendar. You go to bed and wake up with details already on the schedule.</p>
-    <div class="stats">
-      <div class="stat"><b>24,809</b><span>Ad impressions in one month</span></div>
-      <div class="stat"><b>135</b><span>Leads brought in that month</span></div>
-      <div class="stat"><b>97.9%</b><span>Of the time shown above competitors</span></div>
-      <div class="stat"><b>7</b><span>Details booked in a single day</span></div>
+    <p class="lead">We build you a landing page carrying your pricing and your work, then run Google search ads into it. People see what it costs, see the job quality, and book straight into your calendar with a deposit down.</p>
+    <h3 style="font-size:19px;font-weight:800;margin-top:28px;">What this is doing for detailers right now</h3>
+    <div class="two">
+      <div class="proof">
+        <div class="pc">Mobile detailer &middot; Kansas City</div>
+        <div class="pb">15</div>
+        <div class="pl">jobs booked online with a deposit, in September</div>
+        <ul>
+          <li>$2,859 in ad spend that month</li>
+          <li>11 quote requests on top of the 15 bookings</li>
+          <li>Jobs run $280 to $350, so the bookings alone covered the ad spend before a single quote request closed</li>
+          <li>First van booked full. They have opened a second van's schedule.</li>
+        </ul>
+      </div>
+      <div class="proof">
+        <div class="pc">Mobile detailer &middot; Greensboro, NC</div>
+        <div class="pb">13</div>
+        <div class="pl">booked jobs in the first 23 days of September</div>
+        <ul>
+          <li>$1,860 in ad spend</li>
+          <li>175 leads since the campaign launched in July</li>
+          <li>Quote requests, calls and Book Now taps, all from Google</li>
+        </ul>
+      </div>
     </div>
-    <p class="src">Live client accounts. The first three are one month on a single account. The seven in a day is a different client running both campaigns together.</p>
-    <div class="ph"><b>Add: the real dashboard</b><span>Screenshots of these accounts so it is their analytics on screen and not our numbers in a slide. Worth far more than text.</span></div>
+    <div class="ask"><p>If you had 13 to 15 extra jobs on the calendar next month, could you handle them?</p></div>
+    <p class="src">September 2026, Google Ads and CRM data. Results vary by market.</p>
   </section>
 
   <!-- 9 AI RECEPTIONIST -->
@@ -269,7 +313,8 @@
       <div class="card"><h3>It upsells</h3><p>Books the detail, then asks whether they want the ceramic coating while they are already on the phone.</p></div>
       <div class="card"><h3>It never misses</h3><p>Every missed call is a job somebody else got. This one answers at 7pm, on a Sunday, while you are under a car.</p></div>
     </div>
-    <div class="ph" id="aiDemo"><b>Add: the live demo number</b><span>Put the demo bot's phone number here. Best moment on the whole call is dialing it on speaker and letting them hear it handle a price objection themselves.</span></div>
+    <a class="tel" href="tel:+18162265277"><div><div class="tl">Call it right now</div><div class="tn">816-226-5277</div></div></a>
+    <p class="src">Go ahead and dial it. Ask it what a ceramic coating costs, then tell it the price is too high and listen to what it does.</p>
   </section>
 
   <!-- 10 DETAILER GROWTH SYSTEM -->
@@ -283,7 +328,14 @@
       <div class="card"><h3>Reviews on autopilot</h3><p>Asks for the review after every finished job, which is what pushes you up the rankings in the first place.</p></div>
       <div class="card"><h3>No-shows killed</h3><p>Automatic reminders before the appointment and an instant text back on any call you miss.</p></div>
     </div>
-    <div class="ph"><b>Add: a look inside</b><span>A screenshot of the dashboard or a short walkthrough link, so they see the actual system rather than a description of it.</span></div>
+    <h3 style="font-size:19px;font-weight:800;margin-top:28px;">This is one client's board right now</h3>
+    <div class="stats">
+      <div class="stat"><b>225</b><span>Leads tracked, none of them lost</span></div>
+      <div class="stat"><b>$30,750</b><span>Sitting in the pipeline</span></div>
+      <div class="stat"><b>$1,035</b><span>Ceramic booked by text, no call</span></div>
+    </div>
+    <img class="shot" src="proof-growth-system.png" alt="The Detailer Growth System pipeline, text conversation and calendar" />
+    <p class="src">Every lead sorted new, cold, warm and booked. On the right, the system quoting packages and booking a deluxe ceramic over text while the owner was working.</p>
   </section>
 
   <!-- 11 WEBSITE -->
@@ -291,7 +343,8 @@
     <div class="kicker">The foundation</div>
     <h2>Your Website</h2>
     <p class="lead">Built to do two jobs: convert the people who land on it, and get found by the people searching. Mobile first, a page for every service, booking and payments built in, and written so it shows up on Google and on AI tools like ChatGPT. Live in seven days.</p>
-    <div class="ph" id="webPortfolio"><b>Add: the portfolio link</b><span>Ryan's link showing the sites we have built. Drop it here and it becomes a button they can click on the call.</span></div>
+    <a class="cta" href="https://rapidreachwebsites.netlify.app/" target="_blank" rel="noopener">See the sites we have built &rarr;</a>
+    <p class="src">Opens in a new tab. Scroll it with them and let them pick the one closest to what they want.</p>
   </section>
 
   <!-- 12 PRICED SEPARATELY -->
