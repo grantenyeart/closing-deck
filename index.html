@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Rapid Reach Advertising</title>
+<meta name="theme-color" content="#020817" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#020817; --bg2:#01030a; --card:#0b1322; --card2:#101c33;
+    --border:#1e293b; --border2:#27364b; --text:#f8fafc; --muted:#94a3b8; --muted2:#64748b;
+    --gold:#f59e0b; --gold2:#eab308; --green:#34d399; --red:#f87171;
+    --grad:linear-gradient(135deg,#f59e0b,#eab308);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);
+    -webkit-font-smoothing:antialiased;line-height:1.5;overflow:hidden;}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(1000px 600px at 85% -10%,rgba(245,158,11,.11),transparent 60%),
+               radial-gradient(800px 600px at 0% 110%,rgba(234,179,8,.07),transparent 60%),
+               linear-gradient(180deg,var(--bg),var(--bg2));}
+
+  .stage{position:relative;z-index:1;height:100%;display:flex;align-items:center;justify-content:center;padding:46px 28px 92px;}
+  .slide{display:none;width:100%;max-width:1040px;max-height:100%;overflow-y:auto;animation:in .28s ease;}
+  .slide.on{display:block;}
+  @keyframes in{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  .kicker{font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+  h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(34px,6.4vw,70px);font-weight:900;letter-spacing:-.02em;line-height:1.02;}
+  h2{font-size:clamp(25px,4.2vw,44px);font-weight:900;letter-spacing:-.02em;line-height:1.1;}
+  .gold{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .lead{color:var(--muted);font-size:clamp(15px,2vw,19px);margin-top:16px;max-width:760px;}
+  p{color:#cbd5e1;font-size:16px;}
+
+  /* cover */
+  .cover{text-align:center;}
+  .logo{width:112px;height:112px;margin:0 auto 26px;border-radius:26px;background:var(--grad);color:#0f172a;
+    display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:44px;font-weight:900;
+    box-shadow:0 18px 60px rgba(245,158,11,.28);overflow:hidden;}
+  .logo img{width:100%;height:100%;object-fit:cover;}
+  .cover .for{margin-top:30px;font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);}
+  .cover .co{font-family:'Playfair Display',serif;font-size:clamp(26px,4.4vw,42px);font-weight:800;margin-top:6px;}
+
+  /* generic cards */
+  .rows{display:flex;flex-direction:column;gap:11px;margin-top:26px;}
+  .row{display:flex;gap:15px;align-items:flex-start;background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:13px;padding:15px 18px;}
+  .num{flex:0 0 auto;width:29px;height:29px;border-radius:9px;background:var(--grad);color:#0f172a;
+    font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  .qt{font-size:17px;font-weight:700;color:#fff;line-height:1.4;}
+  .qs{color:var(--muted);font-size:14px;margin-top:4px;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(246px,1fr));gap:14px;margin-top:26px;}
+  .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:15px;padding:19px 20px;}
+  .card h3{font-size:18px;font-weight:800;margin-bottom:8px;}
+  .card p{font-size:14.5px;color:var(--muted);}
+
+  /* product menu */
+  .menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(252px,1fr));gap:14px;margin-top:28px;}
+  .mcard{text-align:left;cursor:pointer;background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border);border-radius:15px;padding:20px;color:inherit;font:inherit;
+    transition:border-color .15s ease,transform .15s ease,background .15s ease;}
+  .mcard:hover{border-color:var(--gold);transform:translateY(-3px);background:linear-gradient(180deg,#0e1830,#13203a);}
+  .mcard .mn{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+  .mcard h3{font-size:19px;font-weight:800;margin:7px 0 7px;}
+  .mcard p{font-size:14px;color:var(--muted);}
+
+  /* proof */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:13px;margin-top:22px;}
+  .stat{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);border-radius:13px;padding:17px 18px;}
+  .stat b{display:block;font-family:'Playfair Display',serif;font-size:clamp(25px,3.6vw,38px);font-weight:900;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;}
+  .stat span{display:block;color:var(--muted);font-size:13px;margin-top:7px;}
+  .src{color:var(--muted2);font-size:12.5px;margin-top:14px;}
+
+  .ph{border:1px dashed rgba(245,158,11,.5);background:rgba(245,158,11,.05);border-radius:13px;padding:22px;margin-top:20px;text-align:center;}
+  .ph b{display:block;color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:7px;}
+  .ph span{color:var(--muted);font-size:14px;}
+
+  .cta{display:inline-flex;align-items:center;gap:9px;margin-top:20px;background:var(--grad);color:#0f172a;
+    font-weight:800;font-size:15px;border:0;border-radius:999px;padding:13px 24px;text-decoration:none;cursor:pointer;}
+  .cta:hover{filter:brightness(1.08);}
+  .big{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,54px);font-weight:900;letter-spacing:.01em;}
+
+  table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15px;}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--border);}
+  th{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+  td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;}
+  tr.tot td{border-top:2px solid var(--border2);border-bottom:0;font-weight:900;color:#fff;}
+
+  .bundles{display:grid;grid-template-columns:repeat(auto-fit,minmax(252px,1fr));gap:14px;margin-top:24px;}
+  .b{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:15px;padding:20px;}
+  .b.best{border-color:rgba(245,158,11,.55);background:linear-gradient(180deg,rgba(245,158,11,.09),rgba(234,179,8,.04));}
+  .b .bn{font-size:11px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);}
+  .b .price{font-family:'Playfair Display',serif;font-size:40px;font-weight:900;margin:9px 0 2px;}
+  .b .per{color:var(--muted2);font-size:13px;}
+  .b ul{list-style:none;margin-top:14px;}
+  .b li{font-size:14px;color:#cbd5e1;padding:5px 0 5px 20px;position:relative;}
+  .b li:before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800;}
+  .b li.no{color:var(--muted2);}
+  .b li.no:before{content:"\2717";color:var(--muted2);}
+  .save{margin-top:13px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:9px;
+    padding:9px 12px;font-size:13.5px;color:var(--green);font-weight:700;}
+  .due{margin-top:9px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:9px;
+    padding:9px 12px;font-size:13.5px;color:#fde68a;font-weight:700;}
+
+  /* chrome */
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;backdrop-filter:blur(14px);
+    background:rgba(2,8,23,.9);border-top:1px solid var(--border);}
+  .bar-in{max-width:1040px;margin:0 auto;padding:11px 28px;display:flex;align-items:center;gap:10px;}
+  .nb{background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:10px;
+    width:38px;height:36px;font-size:15px;cursor:pointer;}
+  .nb:hover{border-color:var(--gold);color:var(--gold);}
+  .menu-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:10px;
+    padding:0 15px;height:36px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .menu-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .count{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--muted2);font-variant-numeric:tabular-nums;}
+  .brand{position:fixed;top:20px;left:28px;z-index:30;font-size:11.5px;font-weight:800;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--muted2);}
+  .setup{position:fixed;top:16px;right:24px;z-index:31;background:transparent;border:1px solid var(--border2);
+    color:var(--muted2);border-radius:9px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .setup:hover{border-color:var(--gold);color:var(--gold);}
+  .modal{position:fixed;inset:0;z-index:50;background:rgba(2,8,23,.86);backdrop-filter:blur(6px);
+    display:none;align-items:center;justify-content:center;padding:24px;}
+  .modal.on{display:flex;}
+  .mbox{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border2);
+    border-radius:17px;padding:26px;max-width:430px;width:100%;}
+  .mbox h3{font-size:19px;font-weight:800;margin-bottom:5px;}
+  .mbox p{font-size:13.5px;color:var(--muted);margin-bottom:17px;}
+  .mbox label{display:block;font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--gold);margin:13px 0 6px;}
+  .mbox input[type=text]{width:100%;background:#060d1c;border:1px solid var(--border2);color:var(--text);
+    border-radius:10px;padding:11px 13px;font:inherit;font-size:15px;}
+  .mbox input[type=file]{width:100%;font-size:13px;color:var(--muted);}
+  .mrow{display:flex;gap:9px;margin-top:20px;}
+  .mrow button{flex:1;border-radius:10px;padding:11px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;border:0;}
+  .save-b{background:var(--grad);color:#0f172a;}
+  .clear-b{background:transparent;border:1px solid var(--border2);color:var(--muted);}
+
+  @media(max-width:760px){ .brand{display:none;} }
+  @media(max-width:620px){
+    .stage{padding:60px 18px 92px;}
+    .bar-in{padding:10px 18px;gap:7px;}
+    .menu-btn{padding:0 11px;font-size:12.5px;}
+    .count{font-size:11px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="brand">Rapid Reach Advertising</div>
+<button class="setup" onclick="openSetup()">Set up this call</button>
+
+<div class="stage">
+
+  <!-- 1 COVER -->
+  <section class="slide on" id="s-cover">
+    <div class="cover">
+      <div class="logo" id="logoBox">GE</div>
+      <div class="kicker">Rapid Reach Advertising</div>
+      <h1>Welcome</h1>
+      <p class="lead" style="margin:16px auto 0;">We grow detail shops by putting them at the top of Google and catching every lead that comes back.</p>
+      <div class="for" id="forLabel" style="display:none;">Prepared for</div>
+      <div class="co gold" id="coName" style="display:none;"></div>
+    </div>
+  </section>
+
+  <!-- 2 HOW THESE CALLS GO -->
+  <section class="slide" id="s-how">
+    <div class="kicker">Before we start</div>
+    <h2>Here is how these calls go</h2>
+    <div class="rows">
+      <div class="row"><div class="num">1</div><div><div class="qt">A few questions about your business</div><div class="qs">Where your work comes from today, what it is costing you, and where you are trying to get to. We cannot recommend anything useful until we know that.</div></div></div>
+      <div class="row"><div class="num">2</div><div><div class="qt">Then we show you which of our products actually fits</div><div class="qs">We build five things. Most shops do not need all five. We will tell you straight which ones move your number and which ones do not.</div></div></div>
+      <div class="row"><div class="num">3</div><div><div class="qt">Then we talk budget, openly, both directions</div><div class="qs">So it makes sense on your side and ours. If it does not, we will say so and you have lost nothing but half an hour.</div></div></div>
+    </div>
+    <p class="lead" style="margin-top:24px;"><b style="color:#fde68a">Sound fair?</b></p>
+  </section>
+
+  <!-- 3 QUESTIONS, THE WORK -->
+  <section class="slide" id="s-q1">
+    <div class="kicker">Your business today</div>
+    <h2>Let's start with the work itself</h2>
+    <div class="rows">
+      <div class="row"><div class="num">1</div><div><div class="qt">How many jobs are you doing per week right now?</div></div></div>
+      <div class="row"><div class="num">2</div><div><div class="qt">How many more could you comfortably take on?</div></div></div>
+      <div class="row"><div class="num">3</div><div><div class="qt">What types of jobs are these?</div><div class="qs">Interiors, exteriors, ceramic coatings, fleet, tint. Which ones do you actually want more of?</div></div></div>
+    </div>
+  </section>
+
+  <!-- 4 QUESTIONS, THE CHANNEL -->
+  <section class="slide" id="s-q2">
+    <div class="kicker">Where it comes from</div>
+    <h2>Now where that work is coming from</h2>
+    <div class="rows">
+      <div class="row"><div class="num">4</div><div><div class="qt">Where are your jobs coming from today?</div><div class="qs">Google, Facebook, word of mouth, repeat customers, somewhere else.</div></div></div>
+      <div class="row"><div class="num">5</div><div><div class="qt">How many is that bringing you a week?</div></div></div>
+      <div class="row"><div class="num">6</div><div><div class="qt">And what are you currently spending to bring that work in?</div><div class="qs">Ad spend, agency fees, anything you are paying to make the phone ring.</div></div></div>
+    </div>
+  </section>
+
+  <!-- 5 QUESTIONS, THE GAP -->
+  <section class="slide" id="s-q3">
+    <div class="kicker">The gap</div>
+    <h2>And where you are trying to get to</h2>
+    <div class="rows">
+      <div class="row"><div class="num">7</div><div><div class="qt">Where are you at right now, and where do you want to be?</div><div class="qs">Per week or per month, whichever you think in.</div></div></div>
+      <div class="row"><div class="num">8</div><div><div class="qt">What is stopping you from being there today?</div></div></div>
+      <div class="row"><div class="num">9</div><div><div class="qt">How long have you been looking to bring this work in?</div></div></div>
+      <div class="row"><div class="num">10</div><div><div class="qt">What makes you want to bring it in now?</div></div></div>
+    </div>
+  </section>
+
+  <!-- 6 THE MENU -->
+  <section class="slide" id="s-menu">
+    <div class="kicker">What we build</div>
+    <h2>Five things. You probably need two.</h2>
+    <p class="lead">Based on what you just told us, here is what is worth looking at.</p>
+    <div class="menu">
+      <button class="mcard" onclick="go('s-lsa')"><div class="mn">Lead generation</div><h3>Local Services</h3><p>Top of Google. People searching for detailing near you call and text you directly. The fastest one to switch on.</p></button>
+      <button class="mcard" onclick="go('s-ppc')"><div class="mn">Lead generation</div><h3>Pay Per Click</h3><p>A landing page built to convert, with search ads driving into it. People book straight into your calendar.</p></button>
+      <button class="mcard" onclick="go('s-ai')"><div class="mn">Catch the leads</div><h3>AI Receptionist</h3><p>Answers every call and text, quotes your pricing, books the job. Works at 7pm while you are under a car.</p></button>
+      <button class="mcard" onclick="go('s-dgs')"><div class="mn">Catch the leads</div><h3>Detailer Growth System</h3><p>Every lead tracked, past customers re-activated in one click, reviews requested automatically, no-shows killed.</p></button>
+      <button class="mcard" onclick="go('s-web')"><div class="mn">The foundation</div><h3>Your Website</h3><p>Built to convert and to get found, on Google and on AI like ChatGPT. Booking and payments built in.</p></button>
+      <button class="mcard" onclick="go('s-sep')"><div class="mn">The numbers</div><h3>Pricing</h3><p>What each piece costs on its own, and what it costs when you run them together.</p></button>
+    </div>
+  </section>
+
+  <!-- 7 LOCAL SERVICES -->
+  <section class="slide" id="s-lsa">
+    <div class="kicker">Lead generation</div>
+    <h2>Local Services</h2>
+    <p class="lead">We put your business profile at the very top of Google, above the regular ads. Someone searches detailing in your area, sees you first, and calls or texts you directly. No landing page, no form, just the phone ringing.</p>
+    <div class="grid">
+      <div class="card"><h3>Why it works</h3><p>These are people typing the need into Google right now. Highest intent traffic there is, and the quickest of our products to turn on.</p></div>
+      <div class="card"><h3>What we need from you</h3><p>A verified business profile, insurance, and a phone that gets answered fast. Speed to lead decides your placement.</p></div>
+      <div class="card"><h3>The catch</h3><p>It only works where your market is not already saturated. We check that before the call. If your area is crowded, Pay Per Click is the better route.</p></div>
+    </div>
+    <div class="ph"><b>Add: Local Services results</b><span>A screenshot or the headline numbers from a live Local Services account. Leads per month, cost per lead, and the client name you are happy to show.</span></div>
+  </section>
+
+  <!-- 8 PAY PER CLICK -->
+  <section class="slide" id="s-ppc">
+    <div class="kicker">Lead generation</div>
+    <h2>Pay Per Click</h2>
+    <p class="lead">We build you a landing page carrying your pricing and your work, then run Google search ads into it. People see what it costs, see the job quality, and book straight into your calendar. You go to bed and wake up with details already on the schedule.</p>
+    <div class="stats">
+      <div class="stat"><b>24,809</b><span>Ad impressions in one month</span></div>
+      <div class="stat"><b>135</b><span>Leads brought in that month</span></div>
+      <div class="stat"><b>97.9%</b><span>Of the time shown above competitors</span></div>
+      <div class="stat"><b>7</b><span>Details booked in a single day</span></div>
+    </div>
+    <p class="src">Live client accounts. The first three are one month on a single account. The seven in a day is a different client running both campaigns together.</p>
+    <div class="ph"><b>Add: the real dashboard</b><span>Screenshots of these accounts so it is their analytics on screen and not our numbers in a slide. Worth far more than text.</span></div>
+  </section>
+
+  <!-- 9 AI RECEPTIONIST -->
+  <section class="slide" id="s-ai">
+    <div class="kicker">Catch the leads</div>
+    <h2>AI Receptionist</h2>
+    <p class="lead">It answers every call and every text, quotes your pricing, handles the back and forth, and books the job into your calendar. It can run all the time, after hours only, or as a backup that picks up whatever you miss. It can even be cloned to your own voice.</p>
+    <div class="grid">
+      <div class="card"><h3>It holds a price</h3><p>Give it a price objection and it explains why the job costs what it costs instead of folding or hanging up.</p></div>
+      <div class="card"><h3>It upsells</h3><p>Books the detail, then asks whether they want the ceramic coating while they are already on the phone.</p></div>
+      <div class="card"><h3>It never misses</h3><p>Every missed call is a job somebody else got. This one answers at 7pm, on a Sunday, while you are under a car.</p></div>
+    </div>
+    <div class="ph" id="aiDemo"><b>Add: the live demo number</b><span>Put the demo bot's phone number here. Best moment on the whole call is dialing it on speaker and letting them hear it handle a price objection themselves.</span></div>
+  </section>
+
+  <!-- 10 DETAILER GROWTH SYSTEM -->
+  <section class="slide" id="s-dgs">
+    <div class="kicker">Catch the leads</div>
+    <h2>Detailer Growth System</h2>
+    <p class="lead">Running ads without this is filling a bucket with a hole in it. Every lead that comes in gets tracked, followed up and reminded, and every customer you have already served stays reachable.</p>
+    <div class="grid">
+      <div class="card"><h3>Every lead in one place</h3><p>Name, number, what they wanted and where they came from. Nothing lives in your text messages any more.</p></div>
+      <div class="card"><h3>Text your whole list at once</h3><p>One click to every past customer. One client went from 2 monthly members to 16 in a single month off one message.</p></div>
+      <div class="card"><h3>Reviews on autopilot</h3><p>Asks for the review after every finished job, which is what pushes you up the rankings in the first place.</p></div>
+      <div class="card"><h3>No-shows killed</h3><p>Automatic reminders before the appointment and an instant text back on any call you miss.</p></div>
+    </div>
+    <div class="ph"><b>Add: a look inside</b><span>A screenshot of the dashboard or a short walkthrough link, so they see the actual system rather than a description of it.</span></div>
+  </section>
+
+  <!-- 11 WEBSITE -->
+  <section class="slide" id="s-web">
+    <div class="kicker">The foundation</div>
+    <h2>Your Website</h2>
+    <p class="lead">Built to do two jobs: convert the people who land on it, and get found by the people searching. Mobile first, a page for every service, booking and payments built in, and written so it shows up on Google and on AI tools like ChatGPT. Live in seven days.</p>
+    <div class="ph" id="webPortfolio"><b>Add: the portfolio link</b><span>Ryan's link showing the sites we have built. Drop it here and it becomes a button they can click on the call.</span></div>
+  </section>
+
+  <!-- 12 PRICED SEPARATELY -->
+  <section class="slide" id="s-sep">
+    <div class="kicker">The numbers</div>
+    <h2>What each piece costs on its own</h2>
+    <table>
+      <tr><th>Service</th><th style="text-align:right;">Monthly</th><th style="text-align:right;">One time</th></tr>
+      <tr><td>Local Services campaign</td><td class="n">$750</td><td class="n">&mdash;</td></tr>
+      <tr><td>Pay Per Click campaign</td><td class="n">$1,000</td><td class="n">&mdash;</td></tr>
+      <tr><td>Detailer Growth System</td><td class="n">$500</td><td class="n">&mdash;</td></tr>
+      <tr><td>AI Receptionist</td><td class="n">$500</td><td class="n">$1,500</td></tr>
+      <tr><td>Your Website</td><td class="n">&mdash;</td><td class="n">$2,000</td></tr>
+      <tr class="tot"><td>All five separately</td><td class="n">$2,750</td><td class="n">$3,500</td></tr>
+    </table>
+    <p class="src" style="margin-top:18px;">Ad spend is separate and always yours. It is paid directly to Google on your own card in your own account. We never touch it and never mark it up, and our fee is flat no matter what you spend, so we have no reason to burn your budget.</p>
+  </section>
+
+  <!-- 13 BUNDLES -->
+  <section class="slide" id="s-bundles">
+    <div class="kicker">The numbers</div>
+    <h2>Run them together and each piece costs less</h2>
+    <div class="bundles">
+      <div class="b"><div class="bn">Bundle 1 &middot; One campaign</div>
+        <div class="price gold">$1,000</div><div class="per">per month</div>
+        <ul>
+          <li>One campaign, Local Services or Pay Per Click depending on your market</li>
+          <li>A dedicated ad manager watching it daily</li>
+          <li>Monthly report on revenue against spend</li>
+          <li>Month to month, cancel anytime</li>
+          <li class="no">One traffic source, and nothing catching the leads once they land</li>
+        </ul>
+        <div class="due">Due today $1,000, your first month</div>
+        <div class="save" style="background:rgba(148,163,184,.1);border-color:var(--border2);color:var(--muted);">About 4 details a month covers it</div>
+      </div>
+
+      <div class="b"><div class="bn">Bundle 2 &middot; Both campaigns</div>
+        <div class="price gold">$1,500</div><div class="per">per month, normally $1,750</div>
+        <ul>
+          <li>Local Services. Top of Google, calls and texts straight to you</li>
+          <li>Pay Per Click. Landing page plus search ads booking into your calendar</li>
+          <li>Ad manager on both, policing junk searches daily</li>
+          <li>Monthly report on revenue against ad spend</li>
+          <li class="no">No website, no tracking system, no AI receptionist</li>
+        </ul>
+        <div class="save">You save $3,000 a year</div>
+        <div class="due">Due today $1,500, your first month. No build fees.</div>
+      </div>
+
+      <div class="b best"><div class="bn">Bundle 3 &middot; Everything</div>
+        <div class="price gold">$2,250</div><div class="per">per month, normally $2,750 plus $3,500 one time</div>
+        <ul>
+          <li>Both campaigns running together</li>
+          <li>Your website rebuilt, converting and bookable</li>
+          <li>Detailer Growth System, every lead tracked and every past customer reachable</li>
+          <li>AI Receptionist, full integration, every call answered and booked</li>
+          <li>Dedicated ad manager and a monthly report on revenue, not clicks</li>
+        </ul>
+        <div class="save">$3,500 in build fees waived. You save $9,500 in year one.</div>
+        <div class="due">Due today $2,250, your first month</div>
+      </div>
+    </div>
+    <p class="src" style="margin-top:20px;">At a $275 average ticket: Bundle 1 is about 4 details a month, Bundle 2 about 6, Bundle 3 about 8, or two ceramic coatings. We bring our clients 8 to 15 additional details a week on average.</p>
+  </section>
+
+</div>
+
+<div class="bar"><div class="bar-in">
+  <button class="nb" onclick="prev()" title="Back">&larr;</button>
+  <button class="nb" onclick="next()" title="Next">&rarr;</button>
+  <button class="menu-btn" onclick="go('s-menu')">What we build</button>
+  <button class="menu-btn" onclick="go('s-bundles')">Pricing</button>
+  <div class="count" id="count"></div>
+</div></div>
+
+<div class="modal" id="modal"><div class="mbox">
+  <h3>Set up this call</h3>
+  <p>Adds their name and logo to the cover. Saved on this computer only, so it stays until you change it.</p>
+  <label>Company name</label>
+  <input type="text" id="inName" placeholder="Beastly Mobile Car Detailing" />
+  <label>Their logo, optional</label>
+  <input type="file" id="inLogo" accept="image/*" />
+  <div class="mrow">
+    <button class="save-b" onclick="saveSetup()">Save</button>
+    <button class="clear-b" onclick="clearSetup()">Clear</button>
+  </div>
+</div></div>
+
+<script>
+const order=['s-cover','s-how','s-q1','s-q2','s-q3','s-menu','s-lsa','s-ppc','s-ai','s-dgs','s-web','s-sep','s-bundles'];
+let i=0;
+function render(){
+  order.forEach((id,n)=>document.getElementById(id).classList.toggle('on',n===i));
+  document.getElementById('count').textContent=String(i+1).padStart(2,'0')+' / '+order.length;
+  document.querySelector('.stage').scrollTop=0;
+  const s=document.getElementById(order[i]); if(s) s.scrollTop=0;
+}
+function go(id){ const n=order.indexOf(id); if(n>=0){i=n;render();} }
+function next(){ if(i<order.length-1){i++;render();} }
+function prev(){ if(i>0){i--;render();} }
+addEventListener('keydown',e=>{
+  if(document.getElementById('modal').classList.contains('on')) return;
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();next();}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev();}
+  if(e.key==='Escape'){go('s-menu');}
+  if(e.key==='Home'){i=0;render();}
+});
+
+// per-call customisation
+function applySetup(){
+  let name='',logo='';
+  try{ name=localStorage.getItem('rr_co')||''; logo=localStorage.getItem('rr_logo')||''; }catch(e){}
+  const q=new URLSearchParams(location.search).get('company');
+  if(q) name=q;
+  const fl=document.getElementById('forLabel'), cn=document.getElementById('coName');
+  if(name){ fl.style.display='block'; cn.style.display='block'; cn.textContent=name; }
+  else { fl.style.display='none'; cn.style.display='none'; }
+  const box=document.getElementById('logoBox');
+  box.innerHTML = logo ? '<img src="'+logo+'" alt="">' : 'GE';
+}
+function openSetup(){
+  try{ document.getElementById('inName').value=localStorage.getItem('rr_co')||''; }catch(e){}
+  document.getElementById('modal').classList.add('on');
+}
+function saveSetup(){
+  const n=document.getElementById('inName').value.trim();
+  const f=document.getElementById('inLogo').files[0];
+  const done=()=>{ document.getElementById('modal').classList.remove('on'); applySetup(); };
+  try{ n?localStorage.setItem('rr_co',n):localStorage.removeItem('rr_co'); }catch(e){}
+  if(f){
+    const r=new FileReader();
+    r.onload=()=>{ try{localStorage.setItem('rr_logo',r.result);}catch(e){} done(); };
+    r.readAsDataURL(f);
+  } else done();
+}
+function clearSetup(){
+  try{ localStorage.removeItem('rr_co'); localStorage.removeItem('rr_logo'); }catch(e){}
+  document.getElementById('inName').value='';
+  document.getElementById('modal').classList.remove('on');
+  applySetup();
+}
+document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') e.currentTarget.classList.remove('on'); });
+
+applySetup(); render();
+</script>
+</body>
+</html>
