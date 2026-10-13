@@ -196,7 +196,7 @@
     <div class="cover">
       <img class="rrlogo" src="logo.png" alt="Rapid Reach Advertising" />
       <h1>Welcome</h1>
-      <p class="lead" style="margin:16px auto 0;">We grow detail shops by putting them at the top of Google and catching every lead that comes back.</p>
+      <p class="lead" style="margin:16px auto 0;">We grow local service businesses by putting them at the top of Google and catching every lead that comes back.</p>
       <div class="for" id="forLabel" style="display:none;">Prepared for</div>
       <div class="co gold" id="coName" style="display:none;"></div>
       <div class="clogo" id="clientLogo"><img id="clientLogoImg" src="" alt="" /></div>
@@ -477,6 +477,32 @@
     <p class="src">Opens in a new tab. Scroll it with them and let them pick the one closest to what they want.</p>
   </section>
 
+  <!-- 11b HOW IT LAUNCHES -->
+  <section class="slide" id="s-launch">
+    <div class="kicker">What happens next</div>
+    <h2>Live in <span class="gold">7 to 14 days</span></h2>
+    <div class="seq" style="margin-top:24px;">
+      <div class="step"><div class="when">Day one</div><div class="what">You sign and fill out the onboarding form. We build a <b>new Google Ads account in your name, on your card</b>, separate from any pay per lead account you already run.</div></div>
+      <div class="step"><div class="when">The build</div><div class="what">We build your landing page and <b>test every call, text and form before a single dollar is spent.</b></div></div>
+      <div class="step"><div class="when">7 to 14 days</div><div class="what">You go live. The first two weeks are the campaign learning, so <b>we do not judge week one.</b></div></div>
+      <div class="step"><div class="when">Ongoing</div><div class="what">A quick weekly update and a monthly report, and we sit down at <b>30, 60 and 90 days</b> to go through where your leads are actually coming from.</div></div>
+    </div>
+    <p class="src">Billed at signing. Month to month, no contract and no exclusivity.</p>
+  </section>
+
+  <!-- 11c WHAT WE NEED FROM YOU -->
+  <section class="slide" id="s-yourjob">
+    <div class="kicker">Your side of it</div>
+    <h2>Four things we need from you</h2>
+    <p class="lead">We can put the right people in front of you. These four decide whether that turns into money, and they are the reason accounts fail when they fail.</p>
+    <div class="grid">
+      <div class="card"><h3>Answer the phone</h3><p>Missed calls are the single biggest way this goes wrong. We can buy you the call. We cannot pick it up.</p></div>
+      <div class="card"><h3>Reply to quote requests within minutes</h3><p>These leads go cold faster than anything else you deal with. Minutes, not hours.</p></div>
+      <div class="card"><h3>Tell us which leads booked</h3><p>We cannot optimise toward jobs we cannot see. Mark them in the CRM and we aim your budget at whatever is actually producing work.</p></div>
+      <div class="card"><h3>Keep your card current and verify with Google</h3><p>Google runs an advertiser verification and only you can complete it. Ignore it and Google pauses the ads, and nothing we do on our side matters.</p></div>
+    </div>
+  </section>
+
   <!-- 12 PRICED SEPARATELY -->
   <section class="slide" id="s-sep">
     <div class="kicker">The numbers</div>
@@ -566,7 +592,7 @@
 </div></div>
 
 <script>
-const order=['s-cover','s-how','s-q1','s-q2','s-q3','s-menu','s-lsa','s-vs','s-ppc','s-ppcad','s-ppc2','s-ppc3','s-ppc4','s-ai','s-dgs','s-web','s-sep','s-bundles'];
+const order=['s-cover','s-how','s-q1','s-q2','s-q3','s-menu','s-lsa','s-vs','s-ppc','s-ppcad','s-ppc2','s-ppc3','s-ppc4','s-ai','s-dgs','s-web','s-launch','s-yourjob','s-sep','s-bundles'];
 let i=0;
 function render(){
   order.forEach((id,n)=>document.getElementById(id).classList.toggle('on',n===i));
