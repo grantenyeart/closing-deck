@@ -173,6 +173,15 @@
   .mrow{display:flex;gap:9px;margin-top:20px;}
   .mrow button{flex:1;border-radius:10px;padding:11px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;border:0;}
   .save-b{background:var(--grad);color:#0f172a;}
+  .save-b:disabled{opacity:.55;cursor:wait;}
+  .mbox{max-height:calc(100vh - 48px);overflow-y:auto;}
+  .mtwo{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .keybox{margin-top:15px;}
+  .keybox summary{cursor:pointer;font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted2);}
+  .keybox input{margin-top:8px;width:100%;background:#060d1c;border:1px solid var(--border2);color:var(--text);
+    border-radius:10px;padding:11px 13px;font:inherit;font-size:14px;}
+  .mstatus{margin-top:14px;font-size:13.5px;color:var(--muted);min-height:0;}
+  .mstatus.err{color:var(--red);}
   .clear-b{background:transparent;border:1px solid var(--border2);color:var(--muted);}
 
   /* prospect audit */
@@ -602,13 +611,27 @@
 
 <div class="modal" id="modal"><div class="mbox">
   <h3>Set up this call</h3>
-  <p>Adds their name and logo to the cover. Saved on this computer only, so it stays until you change it.</p>
+  <p>Fill in the prospect and hit Run audit. The deck pulls their live Google results and rebuilds itself around them.</p>
   <label>Company name</label>
   <input type="text" id="inName" placeholder="Beastly Mobile Car Detailing" />
+  <label>City and state</label>
+  <input type="text" id="inCity" placeholder="Tampa, FL" />
+  <div class="mtwo">
+    <div><label>Main service</label><input type="text" id="inSvc" placeholder="mobile detailing" /></div>
+    <div><label>Top-dollar service</label><input type="text" id="inTop" placeholder="ceramic coating" /></div>
+  </div>
+  <label>Their website, optional</label>
+  <input type="text" id="inSite" placeholder="beastlydetailing.com" />
   <label>Their logo, optional</label>
   <input type="file" id="inLogo" accept="image/*" />
+  <details class="keybox" id="keyBox">
+    <summary>Serper key</summary>
+    <input type="password" id="inKey" placeholder="Paste once, saved on this computer only" autocomplete="off" />
+  </details>
+  <div class="mstatus" id="mStatus"></div>
   <div class="mrow">
-    <button class="save-b" onclick="saveSetup()">Save</button>
+    <button class="save-b" id="runBtn" onclick="saveSetup(true)">Run audit</button>
+    <button class="clear-b" onclick="saveSetup(false)">Name only</button>
     <button class="clear-b" onclick="clearSetup()">Clear</button>
   </div>
 </div></div>
@@ -647,26 +670,121 @@ function applySetup(){
   const cl=document.getElementById('clientLogo'), ci=document.getElementById('clientLogoImg');
   if(logo){ ci.src=logo; cl.style.display='block'; } else { ci.removeAttribute('src'); cl.style.display='none'; }
 }
+// localStorage helpers; storage can be blocked, so every access is guarded
+function lsGet(k){ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } }
+function lsSet(k,v){ try{ v?localStorage.setItem(k,v):localStorage.removeItem(k); }catch(e){} }
+const FIELDS={inName:'rr_co',inCity:'rr_city',inSvc:'rr_svc',inTop:'rr_top',inSite:'rr_site'};
+const val=id=>document.getElementById(id).value.trim();
+
 function openSetup(){
-  try{ document.getElementById('inName').value=localStorage.getItem('rr_co')||''; }catch(e){}
+  Object.entries(FIELDS).forEach(([id,k])=>document.getElementById(id).value=lsGet(k));
+  const hasKey=!!lsGet('rr_serper'), kb=document.getElementById('keyBox'), ki=document.getElementById('inKey');
+  ki.value=''; ki.placeholder=hasKey?'Saved on this computer. Paste a new one to replace it':'Paste once, saved on this computer only';
+  kb.open=!hasKey;
+  status('');
   document.getElementById('modal').classList.add('on');
 }
-function saveSetup(){
-  const n=document.getElementById('inName').value.trim();
+function status(msg,err){ const s=document.getElementById('mStatus'); s.textContent=msg; s.classList.toggle('err',!!err); }
+function readLogo(){
   const f=document.getElementById('inLogo').files[0];
-  const done=()=>{ document.getElementById('modal').classList.remove('on'); applySetup(); };
-  try{ n?localStorage.setItem('rr_co',n):localStorage.removeItem('rr_co'); }catch(e){}
-  if(f){
-    const r=new FileReader();
-    r.onload=()=>{ try{localStorage.setItem('rr_logo',r.result);}catch(e){} done(); };
-    r.readAsDataURL(f);
-  } else done();
+  if(!f) return Promise.resolve();
+  return new Promise(res=>{ const r=new FileReader(); r.onload=()=>{ lsSet('rr_logo',r.result); res(); }; r.readAsDataURL(f); });
+}
+function encodeAudit(a){
+  let s=''; new TextEncoder().encode(JSON.stringify(a)).forEach(b=>s+=String.fromCharCode(b));
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function showHash(h){
+  // a new hash reloads the deck through the hashchange listener; the same hash needs a manual reload
+  if(location.hash===h||(!h&&!location.hash)) location.reload(); else location.hash=h;
+}
+async function saveSetup(run){
+  Object.entries(FIELDS).forEach(([id,k])=>lsSet(k,val(id)));
+  if(val('inKey')) lsSet('rr_serper',val('inKey'));
+  await readLogo();
+  if(!run){ showHash(''); return; }
+  const p={co:val('inName'),city:val('inCity'),svc:val('inSvc')||'mobile detailing',top:val('inTop')||'ceramic coating',site:val('inSite')};
+  if(!p.co||!p.city){ status('Add the company name and the city first.',true); return; }
+  if(!lsGet('rr_serper')){ document.getElementById('keyBox').open=true; status('Paste the Serper key first. You only do this once on this computer.',true); return; }
+  const btn=document.getElementById('runBtn'); btn.disabled=true;
+  status('Pulling their live Google results...');
+  try{ showHash('#a='+encodeAudit(await runAudit(p))); }
+  catch(e){ status(e.message||'Something went wrong pulling the results.',true); btn.disabled=false; }
 }
 function clearSetup(){
-  try{ localStorage.removeItem('rr_co'); localStorage.removeItem('rr_logo'); }catch(e){}
-  document.getElementById('inName').value='';
-  document.getElementById('modal').classList.remove('on');
-  applySetup();
+  ['rr_co','rr_logo','rr_city','rr_site'].forEach(k=>lsSet(k,''));
+  showHash('');
+}
+
+// live Google audit, straight from the browser through serper.dev
+const STATES={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'District of Columbia'};
+function toLocation(city){
+  const [c,s]=city.split(',').map(x=>(x||'').trim());
+  if(!c||!s) return null;
+  const st=STATES[s.toUpperCase()]||Object.values(STATES).find(v=>v.toLowerCase()===s.toLowerCase());
+  return st?c+', '+st+', United States':null;
+}
+async function serper(endpoint,q,location){
+  const body={q,gl:'us',hl:'en'}; if(location) body.location=location;
+  let r;
+  try{
+    r=await fetch('https://google.serper.dev/'+endpoint,{method:'POST',
+      headers:{'X-API-KEY':lsGet('rr_serper'),'Content-Type':'application/json'},body:JSON.stringify(body)});
+  }catch(e){ throw new Error('Could not reach Google results. Check the internet connection and try again.'); }
+  if(r.status===401||r.status===403){ lsSet('rr_serper',''); throw new Error('The Serper key was rejected. Paste it again under Serper key.'); }
+  if(!r.ok&&location) return serper(endpoint,q,null); // an unrecognised city: retry with the city only in the search text
+  if(!r.ok) throw new Error('Google results came back with an error ('+r.status+'). Try again in a minute.');
+  return r.json();
+}
+const norm=s=>(s||'').toLowerCase().replace(/\b(llc|inc|co|company|the)\b/g,'').replace(/[^a-z0-9]/g,'');
+const hostOf=u=>(u||'').toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').split('/')[0];
+async function runAudit(p){
+  const cityName=p.city.split(',')[0].trim(), loc=toLocation(p.city);
+  const kws=[p.svc+' '+cityName, p.top+' '+cityName];
+  if(loc) kws.push(p.svc+' near me');
+  const me=norm(p.co), site=hostOf(p.site);
+  const isMe=(title,link)=>{ const t=norm(title);
+    return (me.length>3&&t&&(t.includes(me)||(t.length>5&&me.includes(t))))||(site&&hostOf(link)===site); };
+  // their Facebook or Yelp page ranking is not their website ranking, so it never counts as an organic hit
+  const DIRS=/(^|\.)(facebook|instagram|yelp|yellowpages|bbb|mapquest|angi|thumbtack|nextdoor|linkedin|tiktok|youtube|google|apple|bing|manta|birdeye|groupon|houzz|homeadvisor)\./;
+  const isMySite=o=>isMe(o.title,o.link)&&!DIRS.test(hostOf(o.link)+'.');
+  const results=await Promise.all(kws.map(kw=>Promise.all([serper('places',kw,loc),serper('search',kw,loc)])));
+  const packs=results.map(([pl])=>(pl.places||[]).slice(0,10).map((x,n)=>({rank:n+1,name:x.title,rating:x.rating??null,reviews:x.ratingCount??null,you:isMe(x.title,x.website)})));
+  const ranks=kws.map((kw,k)=>{
+    const youP=packs[k].find(r=>r.you), youO=(results[k][1].organic||[]).slice(0,10).find(isMySite);
+    return {kw,map:youP?youP.rank:null,org:youO?(youO.position||null):null};
+  });
+  const pack=packs[0], you=pack.find(r=>r.you), leader=pack[0], kw1=kws[0], kw2=kws[1];
+  const q=s=>'“'+s+'”';
+
+  let headline;
+  if(!pack.length) headline='Google shows no map results for this search';
+  else if(!you) headline='You do not show up on the Google map';
+  else if(you.rank===1) headline='You hold the top spot on the map';
+  else headline=(you.rank-1)+(you.rank===2?' shop shows':' shops show')+' up before you do';
+
+  const orgFound=ranks.filter(r=>r.org).length;
+  let sub='When someone searches '+q(kw1)+', '+(you?'you are number '+you.rank+' on the Google map.':'you are not in the top 10 on the Google map.');
+  sub+=ranks[1].map?' For '+q(kw2)+', you are number '+ranks[1].map+'.':' For '+q(kw2)+', the higher-ticket work, you are not on the map at all.';
+  if(!orgFound) sub+=' Below the map, your website does not make the top 10 for any of these searches.';
+
+  const stats=[{b:you?'#'+you.rank:'Not top 10',s:'Your spot on the Google map for '+q(kw1)}];
+  if(you&&leader&&!leader.you&&leader.reviews!=null&&you.reviews!=null) stats.push({b:leader.reviews+' vs '+you.reviews,s:leader.name+(/s$/i.test(leader.name)?'’':'’s')+' reviews against yours'});
+  else if(!you&&leader&&leader.reviews!=null) stats.push({b:String(leader.reviews),s:'Reviews on '+leader.name+', the first shop on the map'});
+  stats.push({b:orgFound+' of '+ranks.length,s:'Searches where your website makes the top 10 results'});
+
+  let ask;
+  const weaker=you&&pack.find(r=>r.rank<you.rank&&r.reviews!=null&&you.reviews!=null&&r.reviews<you.reviews);
+  if(weaker) ask=weaker.name+' has '+weaker.reviews+' reviews to your '+you.reviews+' and still shows up above you. What do you think that is costing you each month?';
+  else if(you&&you.rank>1) ask='Most people call one of the first three. How many of those calls do you think go to the shops above you each week?';
+  else if(!you) ask='If someone in '+cityName+' searched for you today, who do you think they would call instead?';
+  else if(!ranks[1].map) ask='You win the map for '+p.svc+'. So who is getting the '+p.top+' jobs, where the real money is?';
+  else ask='You already win the map. How many of those calls do you miss while you are on a job?';
+
+  let list=pack.slice(0,6);
+  if(you&&you.rank>6) list=pack.slice(0,5).concat(you);
+  return {co:p.co,city:p.city,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    headline,sub,stats,pack:{kw:kw1,list:list.map(({rank,name,rating,reviews,you})=>({rank,name,rating,reviews,you}))},ranks,ask};
 }
 document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') e.currentTarget.classList.remove('on'); });
 
@@ -694,7 +812,7 @@ function renderAudit(a){
     const h=el('tr'); h.append(el('th','#'),el('th','Business'),el('th','Rating'),el('th','Reviews')); h.lastChild.style.textAlign='right'; pk.append(h);
     a.pack.list.forEach((r,n)=>{
       const tr=el('tr',null,r.you?'you':'');
-      tr.append(el('td',String(n+1)),el('td',r.you?r.name+'  (you)':r.name),el('td',r.rating!=null?r.rating+'★':''),el('td',r.reviews!=null?String(r.reviews):'','n'));
+      tr.append(el('td',String(r.rank||n+1)),el('td',r.you?r.name+'  (you)':r.name),el('td',r.rating!=null?r.rating+'★':''),el('td',r.reviews!=null?String(r.reviews):'','n'));
       pk.append(tr);
     });
   } else { pt.style.display='none'; pk.style.display='none'; }
