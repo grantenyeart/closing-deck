@@ -175,6 +175,13 @@
   .save-b{background:var(--grad);color:#0f172a;}
   .clear-b{background:transparent;border:1px solid var(--border2);color:var(--muted);}
 
+  /* prospect audit */
+  .au-h3{font-size:19px;font-weight:800;margin-top:28px;}
+  tr.you td{background:rgba(248,113,113,.1);color:#fff;font-weight:800;}
+  tr.you td:first-child{box-shadow:inset 3px 0 0 var(--red);}
+  td.miss{color:var(--red);font-weight:800;}
+  td.hit{color:var(--green);font-weight:800;}
+
   @media(max-width:760px){ .brand{display:none;} }
   @media(max-width:620px){
     .stage{padding:60px 18px 92px;}
@@ -247,6 +254,20 @@
       <div class="row"><div class="num">9</div><div><div class="qt">How long have you been looking to bring this work in?</div></div></div>
       <div class="row"><div class="num">10</div><div><div class="qt">What makes you want to bring it in now?</div></div></div>
     </div>
+  </section>
+
+  <!-- 5b PROSPECT AUDIT (only shown when the deck is opened with an audit link) -->
+  <section class="slide" id="s-audit">
+    <div class="kicker">Where you show up on Google today</div>
+    <h2 id="auHead"></h2>
+    <p class="lead" id="auSub"></p>
+    <div class="stats" id="auStats"></div>
+    <h3 class="au-h3" id="auPackTitle"></h3>
+    <table id="auPack"></table>
+    <h3 class="au-h3" id="auRankTitle">The searches that pay</h3>
+    <table id="auRank"></table>
+    <div class="ask" id="auAskBox"><p id="auAsk"></p></div>
+    <p class="src" id="auSrc"></p>
   </section>
 
   <!-- 6 THE MENU -->
@@ -573,6 +594,7 @@
 <div class="bar"><div class="bar-in">
   <button class="nb" onclick="prev()" title="Back">&larr;</button>
   <button class="nb" onclick="next()" title="Next">&rarr;</button>
+  <button class="menu-btn" id="auBtn" onclick="go('s-audit')" style="display:none;">Their Google</button>
   <button class="menu-btn" onclick="go('s-menu')">What we build</button>
   <button class="menu-btn" onclick="go('s-bundles')">Pricing</button>
   <div class="count" id="count"></div>
@@ -592,7 +614,8 @@
 </div></div>
 
 <script>
-const order=['s-cover','s-how','s-q1','s-q2','s-q3','s-menu','s-lsa','s-vs','s-ppc','s-ppcad','s-ppc2','s-ppc3','s-ppc4','s-ai','s-dgs','s-web','s-launch','s-yourjob','s-sep','s-bundles'];
+const audit=loadAudit();
+const order=['s-cover','s-how','s-q1','s-q2','s-q3',...(audit?['s-audit']:[]),'s-menu','s-lsa','s-vs','s-ppc','s-ppcad','s-ppc2','s-ppc3','s-ppc4','s-ai','s-dgs','s-web','s-launch','s-yourjob','s-sep','s-bundles'];
 let i=0;
 function render(){
   order.forEach((id,n)=>document.getElementById(id).classList.toggle('on',n===i));
@@ -615,6 +638,7 @@ addEventListener('keydown',e=>{
 function applySetup(){
   let name='',logo='';
   try{ name=localStorage.getItem('rr_co')||''; logo=localStorage.getItem('rr_logo')||''; }catch(e){}
+  if(audit&&audit.co) name=audit.co;
   const q=new URLSearchParams(location.search).get('company');
   if(q) name=q;
   const fl=document.getElementById('forLabel'), cn=document.getElementById('coName');
@@ -645,6 +669,51 @@ function clearSetup(){
   applySetup();
 }
 document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') e.currentTarget.classList.remove('on'); });
+
+// prospect audit: the audit kit encodes the findings into the link hash (#a=...),
+// so nothing about a prospect is ever stored on the site itself
+function loadAudit(){
+  try{
+    const m=location.hash.match(/[#&]a=([A-Za-z0-9_-]+)/);
+    if(!m) return null;
+    let b=m[1].replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='=';
+    const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }catch(e){ return null; }
+}
+function el(tag,text,cls){ const e=document.createElement(tag); if(text!=null) e.textContent=text; if(cls) e.className=cls; return e; }
+function renderAudit(a){
+  document.getElementById('auBtn').style.display='';
+  document.getElementById('auHead').textContent=a.headline||'';
+  document.getElementById('auSub').textContent=a.sub||'';
+  const st=document.getElementById('auStats');
+  (a.stats||[]).forEach(s=>{ const d=el('div',null,'stat'); d.append(el('b',s.b),el('span',s.s)); st.append(d); });
+  const pt=document.getElementById('auPackTitle'), pk=document.getElementById('auPack');
+  if(a.pack&&a.pack.list&&a.pack.list.length){
+    pt.textContent='The Google map results for “'+a.pack.kw+'”';
+    const h=el('tr'); h.append(el('th','#'),el('th','Business'),el('th','Rating'),el('th','Reviews')); h.lastChild.style.textAlign='right'; pk.append(h);
+    a.pack.list.forEach((r,n)=>{
+      const tr=el('tr',null,r.you?'you':'');
+      tr.append(el('td',String(n+1)),el('td',r.you?r.name+'  (you)':r.name),el('td',r.rating!=null?r.rating+'★':''),el('td',r.reviews!=null?String(r.reviews):'','n'));
+      pk.append(tr);
+    });
+  } else { pt.style.display='none'; pk.style.display='none'; }
+  const rk=document.getElementById('auRank');
+  if(a.ranks&&a.ranks.length){
+    const h=el('tr'); h.append(el('th','Search'),el('th','Google map'),el('th','Regular results')); rk.append(h);
+    const pos=v=>v?['#'+v,v<=3?'hit':'']:['Not in the top 10','miss'];
+    a.ranks.forEach(r=>{
+      const tr=el('tr'), m=pos(r.map), o=pos(r.org);
+      tr.append(el('td','“'+r.kw+'”'),el('td',m[0],m[1]),el('td',o[0],o[1]));
+      rk.append(tr);
+    });
+  } else { document.getElementById('auRankTitle').style.display='none'; rk.style.display='none'; }
+  if(a.ask) document.getElementById('auAsk').textContent=a.ask; else document.getElementById('auAskBox').style.display='none';
+  document.getElementById('auSrc').textContent='Live Google results'+(a.city?' for '+a.city:'')+(a.date?', pulled '+a.date:'')+'. Nothing here is estimated.';
+}
+if(audit) renderAudit(audit);
+// pasting the next prospect's link into an open tab only changes the hash, so reload to pick it up
+addEventListener('hashchange',()=>location.reload());
 
 applySetup(); render();
 </script>
