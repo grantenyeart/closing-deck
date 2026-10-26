@@ -716,6 +716,10 @@
   <input type="text" id="inSite" placeholder="beastlydetailing.com" />
   <label>Their logo, optional</label>
   <input type="file" id="inLogo" accept="image/*" />
+  <details class="keybox" id="keyBox">
+    <summary>Serper key</summary>
+    <input type="password" id="inKey" placeholder="Paste once. Saved on this computer, you will not be asked again." autocomplete="off" />
+  </details>
   <div class="mstatus" id="mStatus"></div>
   <div class="mrow">
     <button class="save-b" id="runBtn" onclick="saveSetup(true)">Run audit</button>
@@ -766,6 +770,11 @@ const val=id=>document.getElementById(id).value.trim();
 
 function openSetup(){
   Object.entries(FIELDS).forEach(([id,k])=>document.getElementById(id).value=lsGet(k));
+  const hasKey=!!lsGet('rr_serper'), kb=document.getElementById('keyBox'), ki=document.getElementById('inKey');
+  ki.value='';
+  ki.placeholder=hasKey?'Already saved on this computer. Paste a new one only to replace it.'
+                       :'Paste once. Saved on this computer, you will not be asked again.';
+  kb.open=!hasKey;
   status('');
   document.getElementById('modal').classList.add('on');
 }
@@ -785,6 +794,7 @@ function showHash(h){
 }
 async function saveSetup(run){
   Object.entries(FIELDS).forEach(([id,k])=>lsSet(k,val(id)));
+  if(val('inKey')) lsSet('rr_serper',val('inKey').trim());
   await readLogo();
   if(!run){ showHash(''); return; }
   const p={co:val('inName'),city:val('inCity'),svc:val('inSvc')||'mobile detailing',top:val('inTop')||'ceramic coating',site:val('inSite')};
@@ -792,7 +802,11 @@ async function saveSetup(run){
   const btn=document.getElementById('runBtn'); btn.disabled=true;
   status('Pulling their live Google results...');
   try{ showHash('#a='+encodeAudit(await runAudit(p))); }
-  catch(e){ status(e.message||'Something went wrong pulling the results.',true); btn.disabled=false; }
+  catch(e){
+    if(!lsGet('rr_serper')) document.getElementById('keyBox').open=true;
+    status(e.message||'Something went wrong pulling the results.',true);
+    btn.disabled=false;
+  }
 }
 function clearSetup(){
   ['rr_co','rr_logo','rr_city','rr_site'].forEach(k=>lsSet(k,''));
@@ -811,13 +825,21 @@ function toLocation(city){
 }
 async function serper(endpoint,q,location){
   const body={q,gl:'us',hl:'en'}; if(location) body.location=location;
+  const key=lsGet('rr_serper');
   let r;
   try{
-    r=await fetch(AUDIT_PROXY,{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint,body})});
-  }catch(e){ throw new Error('Could not reach Google results. Check the internet connection and try again.'); }
-  if(r.status===401||r.status===403) throw new Error('The audit service rejected the request. Tell Grant the Serper key needs checking.');
-  if(r.status===500) throw new Error('The audit service is missing its key. Tell Grant to set SERPER_KEY on the proxy.');
+    r = key
+      ? await fetch('https://google.serper.dev/'+endpoint,{method:'POST',
+          headers:{'X-API-KEY':key,'Content-Type':'application/json'},body:JSON.stringify(body)})
+      : await fetch(AUDIT_PROXY,{method:'POST',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint,body})});
+  }catch(e){ throw new Error(key?'Could not reach Google results. Check the internet connection and try again.'
+                                :'Could not reach the audit service. Paste the Serper key below and try again.'); }
+  if(r.status===401||r.status===403){
+    if(key){ lsSet('rr_serper',''); throw new Error('That Serper key was rejected. Paste it again under Serper key.'); }
+    throw new Error('The audit service rejected the request. Paste the Serper key below and try again.');
+  }
+  if(!key&&r.status>=500) throw new Error('The audit service is not set up yet. Paste the Serper key below and try again.');
   if(!r.ok&&location) return serper(endpoint,q,null); // an unrecognised city: retry with the city only in the search text
   if(!r.ok) throw new Error('Google results came back with an error ('+r.status+'). Try again in a minute.');
   return r.json();
