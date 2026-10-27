@@ -700,8 +700,8 @@
 </div>
 
 <div class="bar"><div class="bar-in">
-  <button class="nb" onclick="prev()" title="Back">&larr;</button>
-  <button class="nb" onclick="next()" title="Next">&rarr;</button>
+  <button class="nb" id="navPrev" onclick="prev()" title="Back">&larr;</button>
+  <button class="nb" id="navNext" onclick="next()" title="Next">&rarr;</button>
   <button class="menu-btn" id="auBtn" onclick="go('s-audit')" style="display:none;">Their Google</button>
   <button class="menu-btn" onclick="go('s-menu')">What we build</button>
   <button class="menu-btn" onclick="go('s-bundles')">Pricing</button>
@@ -739,15 +739,20 @@
 const audit=loadAudit();
 const order=['s-cover','s-how','s-q1','s-q2','s-q3',...(audit?['s-audit']:[]),'s-menu','s-lsa','s-vs','s-ppc','s-ppcad','s-ppc2','s-ppc3','s-ppc4','s-ai','s-dgs','s-web','s-launch','s-yourjob','s-sep','s-bundles','s-team'];
 let i=0;
+// on the menu the only way forward is the prospect picking a product
+const isMenu=()=>order[i]==='s-menu';
 function render(){
   order.forEach((id,n)=>document.getElementById(id).classList.toggle('on',n===i));
+  const hide=isMenu();
+  document.getElementById('navPrev').style.display=hide?'none':'';
+  document.getElementById('navNext').style.display=hide?'none':'';
   document.getElementById('count').textContent=String(i+1).padStart(2,'0')+' / '+order.length;
   document.querySelector('.stage').scrollTop=0;
   const s=document.getElementById(order[i]); if(s) s.scrollTop=0;
 }
 function go(id){ const n=order.indexOf(id); if(n>=0){i=n;render();} }
-function next(){ if(i<order.length-1){i++;render();} }
-function prev(){ if(i>0){i--;render();} }
+function next(){ if(isMenu()) return; if(i<order.length-1){i++;render();} }
+function prev(){ if(isMenu()) return; if(i>0){i--;render();} }
 addEventListener('keydown',e=>{
   if(document.getElementById('modal').classList.contains('on')) return;
   if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();next();}
